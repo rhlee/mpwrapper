@@ -1,14 +1,24 @@
-#!/usr/bin/env python
+#!/usr/bin/env pypy
 
 import sys
 import os
 import subprocess
+import re
+import io
 
-sys.stdout = open(os.path.expanduser("~/log"), 'w')
 if len(sys.argv) == 1:
   print "Error: no argument(s)"
   exit(1)
 
-ps = subprocess.Popen(["mplayer", sys.argv[1]], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+mpCommand = "mplayer -v -vf eq2"
+
+ps = subprocess.Popen(mpCommand.split(' ') + [sys.argv[1]],
+  stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+  universal_newlines = True)
+
+posRe = re.compile('^A:\s*([^\s]+)\s*')
 for line in ps.stdout:
-  print line.rstrip("\n")
+  line = line.rstrip('\n')
+  posMatch = posRe.match(line)
+  if posMatch:
+    print posMatch.group(1)
