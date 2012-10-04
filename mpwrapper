@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+
+import sys
+import os
+import subprocess
+
+sys.stdout = open(os.path.expanduser("~/log"), 'w')
+if len(sys.argv) == 1:
+  print "Error: no argument(s)"
+  exit(1)
+
+ps = subprocess.Popen(["mplayer", sys.argv[1]], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+for line in ps.stdout:
+  print line.rstrip("\n")
