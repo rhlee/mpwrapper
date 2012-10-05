@@ -91,6 +91,8 @@ def main(args):
   except IOError:
     pass
   
+  mpCommand += extraRules(arg)
+  
   ps = subprocess.Popen(mpCommand.split(' ') + [arg],
     stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
     universal_newlines = True)
@@ -116,6 +118,14 @@ def main(args):
     eq2File = open(eq2FileName, 'w')
     eq2File.write(eq2Val)
     posFile.close()
+
+
+def extraRules(arg):
+  extraOpts = ""
+  
+  #extraOpts += " -aspect 4:3"
+  
+  return extraOpts
 
 
 if __name__ == "__main__":
