@@ -17,14 +17,14 @@ class MpwrapperWindow:
   def getResume(self):
     return self._resume
 
-  def resumeHandler(self, widget, data=None):
+  def resumeHandler(self, widget, data = None):
     gtk.main_quit()
 
-  def startHandler(self, widget, data=None):
+  def startHandler(self, widget, data = None):
     self._resume = False
     gtk.main_quit()
 
-  def destroy(self, widget, data=None):
+  def destroy(self, widget, data = None):
     gtk.main_quit()
     
   def __init__(self):
@@ -65,12 +65,22 @@ def main(args):
     os.mkdir(mpwPath)
 
   id = "%08x" % (binascii.crc32(arg) & 0xffffffff)
+  posFileName = os.path.join(mpwPath, id)
   
-  mpwrapperWindow = MpwrapperWindow()
-  mpwrapperWindow.main()
-
   mpCommand = "mplayer -v -vf eq2 -fs"
 
+  try:
+    posFile = open(posFileName, 'r')
+    pos = posFile.read()
+    if float(pos) > 10:
+      mpwrapperWindow = MpwrapperWindow()
+      mpwrapperWindow.main()
+      if mpwrapperWindow.getResume():
+        mpCommand += " -ss " + pos
+    posFile.close()
+  except IOError:
+    pass
+  
   ps = subprocess.Popen(mpCommand.split(' ') + [arg],
     stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
     universal_newlines = True)
@@ -82,7 +92,7 @@ def main(args):
     if posMatch:
       pos = posMatch.group(1)
 
-  posFile = open(os.path.join(mpwPath, id), 'w')
+  posFile = open(posFileName, 'w')
   posFile.write(pos)
 
 
