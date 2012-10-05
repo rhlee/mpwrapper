@@ -7,32 +7,37 @@ import re
 import io
 import binascii
 
-#sys.stderr = sys.stdout = open(os.path.expanduser("~/.mpwrapper.log"), 'w')
+def main(args):
+  #sys.stderr = sys.stdout = open(os.path.expanduser("~/.mpwrapper.log"), 'w')
+  
+  if len(args) == 1:
+    print "Error: no argument(s)"
+    exit(1)
 
-if len(sys.argv) == 1:
-  print "Error: no argument(s)"
-  exit(1)
+  arg = args[1]
 
-arg = sys.argv[1]
+  mpwPath = os.path.expanduser("~/.mpwrapper")
+  if not os.path.isdir(mpwPath):
+    os.mkdir(mpwPath)
 
-mpwPath = os.path.expanduser("~/.mpwrapper")
-if not os.path.isdir(mpwPath):
-  os.mkdir(mpwPath)
+  id = "%08x" % (binascii.crc32(arg) & 0xffffffff)
 
-id = "%08x" % (binascii.crc32(arg) & 0xffffffff)
+  mpCommand = "mplayer -v -vf eq2 -fs"
 
-mpCommand = "mplayer -v -vf eq2 -fs"
+  ps = subprocess.Popen(mpCommand.split(' ') + [arg],
+    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+    universal_newlines = True)
 
-ps = subprocess.Popen(mpCommand.split(' ') + [arg],
-  stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-  universal_newlines = True)
+  posRe = re.compile('^A:\s*([^\s]+)\s*')
+  for line in ps.stdout:
+    line = line.rstrip('\n')
+    posMatch = posRe.match(line)
+    if posMatch:
+      pos = posMatch.group(1)
 
-posRe = re.compile('^A:\s*([^\s]+)\s*')
-for line in ps.stdout:
-  line = line.rstrip('\n')
-  posMatch = posRe.match(line)
-  if posMatch:
-    pos = posMatch.group(1)
+  posFile = open(os.path.join(mpwPath, id), 'w')
+  posFile.write(pos)
 
-posFile = open(os.path.join(mpwPath, id), 'w')
-posFile.write(pos)
+
+if __name__ == "__main__":
+  main(sys.argv)
