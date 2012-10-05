@@ -68,7 +68,7 @@ def main(args):
   posFileName = os.path.join(mpwPath, id)
   eq2FileName = os.path.join(mpwPath, "eq2")
   
-  mpCommand = "mplayer -v -vf eq2 -fs"
+  mpCommand = "mplayer -v -fs"
 
   try:
     posFile = open(posFileName, 'r')
@@ -79,6 +79,15 @@ def main(args):
       if mpwrapperWindow.getResume():
         mpCommand += " -ss " + pos
     posFile.close()
+  except IOError:
+    pass
+  
+  mpCommand += " -vf eq2"  
+  try:
+    eq2File = open(eq2FileName, 'r')
+    eq2 = eq2File.read()
+    eq2File.close()
+    mpCommand += "=" + eq2
   except IOError:
     pass
   
