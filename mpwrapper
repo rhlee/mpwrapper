@@ -25,10 +25,10 @@ class MpwrapperWindow:
     self.window.destroy()
   
   def on_window_key_press_event(self,window,event):
-    if self.resumeButton.is_focus():
-      self.startButton.grab_focus()
-    else:
+    if event.keyval == 119:
       self.resumeButton.grab_focus()
+    elif event.keyval == 115:
+      self.startButton.grab_focus()
 
   def destroy(self, widget, data = None):
     gtk.main_quit()
